@@ -101,6 +101,7 @@ Options:
   --httpsCert                    Web Server TLS/SSL Certificate (PEM)                                                                                       [string]
   --https                        Enables HTTPS Listener (requires httpsPrivateKey and httpsCert)                                          [boolean] [default: false]
   --relayState, --rs             Default Relay State                                                                                                        [string]
+  --defaultBasePath              Default Base Path                                                                                                          [string]
   --help                         Show help                                                                                                                 [boolean]
 ```
 

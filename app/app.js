@@ -1,6 +1,7 @@
 'use strict';
 
 const express             = require('express'),
+      router              = express.Router(),
       _                   = require('underscore'),
       path                = require('path'),
       fs                  = require('fs'),
@@ -228,8 +229,7 @@ module.exports.create = (config) => {
   /**
    * Routes
    */
-
-  app.get('/login', function (req, res, next) {
+   router.get('/login', function (req, res, next) {
     const acsUrl = req.query.acsUrl ?
       getReqUrl(req, req.query.acsUrl) :
       getReqUrl(req, config.requestAcsUrl);
@@ -255,7 +255,7 @@ module.exports.create = (config) => {
   });
 
   config.acsUrls.forEach(function(acsUrl) {
-    app.post(getPath(acsUrl),
+    router.post(getPath(acsUrl),
       function (req, res, next) {
         if (req.method === 'POST' && req.body && (req.body.SAMLResponse || req.body.wresult)) {
           const ssoResponse = {
@@ -274,11 +274,11 @@ module.exports.create = (config) => {
           _.extend(strategy.options, params);
           passport.authenticate('wsfed-saml2', params)(req, res, next);
         } else {
-          res.redirect('/login');
+          res.redirect(req.baseUrl + '/login');
         }
       },
       function(req, res, next) {
-        res.redirect('/profile');
+        res.redirect(req.baseUrl + '/profile');
       });
   });
 
@@ -310,10 +310,11 @@ module.exports.create = (config) => {
     }
   ];
 
-  app.get(SLO_URL,logout);
-  app.post(SLO_URL,logout);
+  router.get(SLO_URL,logout);
+  router.post(SLO_URL,logout);
 
-  app.get(['/', '/profile'], function(req, res) {
+  //app.get(['/', '/profile'], function(req, res) {
+  router.get(['/', '/profile'], function(req, res) {
     if(req.isAuthenticated()){
       res.render('profile', {
         protocol: config.protocol === 'samlp' ? 'SAML Protocol' : 'WS-Federation Protocol',
@@ -322,11 +323,11 @@ module.exports.create = (config) => {
         profile: req.user
       });
     } else {
-      res.redirect('/login');
+      res.redirect(req.baseUrl + '/login');
     }
   });
 
-  app.get('/logout', function (req, res, next) {
+  router.get('/logout', function (req, res, next) {
     if (req.isAuthenticated()) {
       if (config.protocol === 'samlp' && config.idpSloUrl) {
         console.log("Sending SLO request for user %s", req.user.subject.name);
@@ -346,14 +347,14 @@ module.exports.create = (config) => {
     }
   });
 
-  app.get('/metadata', function(req, res, next) {
+  router.get('/metadata', function(req, res, next) {
     const xml = METADATA_TEMPLATE(config.getMetadataParams(req));
     console.log(xml);
     res.set('Content-Type', 'text/xml');
     res.send(xml);
   });
 
-  app.get('/settings', function(req, res, next) {
+  router.get('/settings', function(req, res, next) {
     switch (config.protocol) {
       case 'samlp' :
         res.render('settings-samlp', {
@@ -368,7 +369,7 @@ module.exports.create = (config) => {
     }
   });
 
-  app.post('/settings', function(req, res, next) {
+  router.post('/settings', function(req, res, next) {
     Object.keys(req.body).forEach(function(key) {
       switch(req.body[key].toLowerCase()){
         case 'true': case 'yes': case '1':
@@ -394,7 +395,7 @@ module.exports.create = (config) => {
     res.redirect('/');
   });
 
-  app.get('/error', function(req, res) {
+  router.get('/error', function(req, res) {
     const errors = req.flash('error');
     console.log(errors);
     res.render('error', {
@@ -402,6 +403,7 @@ module.exports.create = (config) => {
     });
   });
 
+  app.use(config.defaultBasePath, router);
   // catch 404 and forward as relay state
   app.use(function(req, res) {
     if (!req.isAuthenticated()) {
