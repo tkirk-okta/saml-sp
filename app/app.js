@@ -49,7 +49,7 @@ module.exports.create = (config) => {
 
   config = _.extend({}, config, {
     requestAcsUrl: config.acsUrls[0],
-    failureRedirect: '/error',
+    failureRedirect: config.defaultBasePath + 'error',
     failureFlash: true,
 
     // can't use arrow functions due to lexical scoping

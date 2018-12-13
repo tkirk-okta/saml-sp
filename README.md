@@ -240,3 +240,25 @@ Specify the `https` argument to enable TLS along with public key certificate and
 node bin/server.js --https --httpsCert {cert} --httpsKey {key}
 
 ```
+
+## Deployed behind Apache Reverse Proxy
+
+Specific the `defaultBasePath` argument to serve the files on a seperate path.
+
+```
+ node bin/server.js --idpMetaUrl https://tkirk.oktapreview.com/app/exkibayiwa1DHal1y0h7/sso/saml/metadata --port 8181 --defaultBasePath /sp1/
+```
+
+### Apache Configuration
+```
+
+ProxyPass /sp1 http://localhost:8181/sp1
+ProxyPassReverse /sp1 http://localhost:8181/sp1
+
+ProxyPass /css http://localhost:8181/css
+ProxyPassReverse /css http://localhost:8181/css
+
+ProxyPass /favicon.ico http://localhost:8181/favicon.ico
+ProxyPassReverse /favicon.ico http://localhost:8181/favicon.ico
+
+```
