@@ -246,7 +246,7 @@ node bin/server.js --https --httpsCert {cert} --httpsKey {key}
 Specific the `defaultBasePath` argument to serve the files on a seperate path.
 
 ```
- node bin/server.js --idpMetaUrl https://tkirk.oktapreview.com/app/exkibayiwa1DHal1y0h7/sso/saml/metadata --port 8181 --defaultBasePath /sp1/
+ node bin/server.js --idpMetaUrl https://example.oktapreview.com/app/exkibayiwa1DHal1y0h7/sso/saml/metadata --port 8181 --defaultBasePath /sp1/
 ```
 
 ### Apache Configuration
